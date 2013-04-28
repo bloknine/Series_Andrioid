@@ -1,0 +1,180 @@
+package com.bloknine.series;
+
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class Faster extends Activity implements Runnable {
+	Question q;
+	int[] ques;
+	int hiddenIndex;
+	int marks;
+	Timer ti;
+	TextView tvQues,tvMarks,tvExplain,tt;
+	Button bCheck,bNext;
+	EditText etNumber;
+	Thread t,t1;
+	ProgressBar pb;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.faster);
+		
+		ques = new int[11];
+		q = new Question(10);
+		tvQues = (TextView) findViewById(R.id.textView3);tvQues.setText("");
+		tvMarks = (TextView) findViewById(R.id.textView2);tvMarks.setText("0");
+//		tt=(TextView) findViewById(R.id.textView4);tt.setText("00:00:00");
+		//tvExplain = (TextView) findViewById(R.id.textView2);tvExplain.setText("");
+		bCheck = (Button) findViewById(R.id.button1);
+		bNext = (Button) findViewById(R.id.button2);
+		etNumber = (EditText) findViewById(R.id.editText1);
+		pb= (ProgressBar) findViewById(R.id.progressBar1);
+		t=new Thread(this,"pb");
+		t.start();
+		t1=new Thread(this,"q");
+		t1.start();
+		ques = q.generateQuestion(Question.EASY);
+		hiddenIndex = new java.util.Random().nextInt(8);
+		for (int i = 0; i < 8; i++) {
+			if (i!=hiddenIndex && i!=7)
+			{
+				tvQues.setText(tvQues.getText().toString() + ques[i] + ", ");
+			}
+			else if(i==hiddenIndex && i!=7)
+			{
+				tvQues.setText(tvQues.getText().toString() + "?, ");
+			}
+			else if (i!=hiddenIndex)
+			{
+				tvQues.setText(tvQues.getText().toString() + ques[i]);
+			}
+			else 
+			{
+				tvQues.setText(tvQues.getText().toString() + "?");
+			}
+		}
+		
+		bCheck.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				String s=" ";
+				
+				if(etNumber.getText().toString().length()>0)
+				{
+					 if(Integer.parseInt(etNumber.getText().toString()) == ques[hiddenIndex])
+					{
+						s="Correct!!";
+						marks += q.getMarks();
+						tvMarks.setText(marks+"");
+						tvQues.setText("");
+						etNumber.setText("");
+						pb.setProgress(pb.getProgress()-2);
+					}
+				else
+					{
+						tvQues.setText("");
+						etNumber.setText("");
+						s="Incorrect";
+						pb.setProgress(pb.getProgress()+2);
+					}
+				Toast.makeText(Faster.this, s, Toast.LENGTH_SHORT).show();
+				//tvExplain.setText(q.getExplanation());
+				ques = q.generateQuestion(Question.EASY);
+				hiddenIndex = new java.util.Random().nextInt(8);
+				for (int i = 0; i < 8; i++) {
+					if (i!=hiddenIndex && i!=7)
+					{
+						tvQues.setText(tvQues.getText().toString() + ques[i] + ", ");
+					}
+					else if(i==hiddenIndex && i!=7)
+					{
+						tvQues.setText(tvQues.getText().toString() + "?, ");
+					}
+					else if (i!=hiddenIndex)
+					{
+						tvQues.setText(tvQues.getText().toString() + ques[i]);
+					}
+					else 
+					{
+						tvQues.setText(tvQues.getText().toString() + "?");
+					}
+				}
+				
+			}
+			}
+		});
+		
+		
+		bNext.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+			
+				//tvExplain.setText("");tvQues.setText("");
+				tvQues.setText("");
+				etNumber.setText("");
+				ques = q.generateQuestion(Question.MEDIUM);
+				hiddenIndex = new java.util.Random().nextInt(8);
+				for (int i = 0; i < 8; i++) {
+					if (i!=hiddenIndex && i!=7)
+					{
+						tvQues.setText(tvQues.getText().toString() + ques[i] + ", ");
+					}
+					else if(i==hiddenIndex && i!=7)
+					{
+						tvQues.setText(tvQues.getText().toString() + "?, ");
+					}
+					else if (i!=hiddenIndex)
+					{
+						tvQues.setText(tvQues.getText().toString() + ques[i]);
+					}
+					else 
+					{
+						tvQues.setText(tvQues.getText().toString() + "?");
+					}
+				}		
+			}
+		});
+		
+		
+		
+}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+		if(Thread.currentThread().getName().equals("pb"))
+		{
+		ti=new Timer();
+		ti.scheduleAtFixedRate(inc(),1,1000);
+		if(pb.getProgress()>=100)
+			ti.cancel();
+		}
+		if(Thread.currentThread().getName().equals("q"))
+		{
+			//something else
+		}
+	}
+	TimerTask inc()
+	{
+		
+		pb.setProgress(pb.getProgress()+1);
+		return null;
+		
+	}
+}
